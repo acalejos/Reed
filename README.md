@@ -1,11 +1,14 @@
 # Reed
 
-**TODO: Add description**
+[![Reed version](https://img.shields.io/hexpm/v/Reed.svg)](https://hex.pm/packages/Reed)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/Reed/)
+[![Hex Downloads](https://img.shields.io/hexpm/dt/Reed)](https://hex.pm/packages/Reed)
+[![Twitter Follow](https://img.shields.io/twitter/follow/ac_alejos?style=social)](https://twitter.com/ac_alejos)
+<!-- BEGIN MODULEDOC -->
+
+Streaming RSS parser with a built-in `Req` plugin for network-enabled chunked streaming.
 
 ## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `reed` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -14,8 +17,4 @@ def deps do
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/reed>.
-
+<!-- END MODULEDOC -->

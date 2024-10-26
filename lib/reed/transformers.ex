@@ -33,11 +33,7 @@ defmodule Reed.Transformers do
 
     state = %{state | private: private}
 
-    if Map.fetch!(private, :count) >= count do
-      %{state | halted: true}
-    else
-      state
-    end
+    if Map.fetch!(private, :count) >= count, do: halt(state), else: state
   end
 
   @doc """
@@ -47,11 +43,7 @@ defmodule Reed.Transformers do
   will be in reverse order.
   """
   def collect(%{current_item: item, private: private} = state) do
-    private =
-      private
-      |> Map.update(:items, [item], &[item | &1])
-
-    %{state | private: private}
+    %{state | private: Map.update(private, :items, [item], &[item | &1])}
   end
 
   def halt(%{} = state) do
