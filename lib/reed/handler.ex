@@ -17,14 +17,10 @@ defmodule Reed.Handler do
   def client_state(state), do: Map.take(state, @client_keys)
 
   @impl Saxy.Handler
-  def handle_event(:start_document, _prolog, state) do
-    {:ok, state}
-  end
+  def handle_event(:start_document, _prolog, state), do: {:ok, state}
 
   @impl Saxy.Handler
-  def handle_event(:end_document, _data, state) do
-    {:ok, state}
-  end
+  def handle_event(:end_document, _data, state), do: {:ok, state}
 
   @impl Saxy.Handler
   def handle_event(:start_element, {name, attributes}, state) do
@@ -45,10 +41,8 @@ defmodule Reed.Handler do
               put_in(
                 state.current_item,
                 current_path
-                |> Enum.split_while(&(&1 != "item"))
-                |> elem(0)
-                |> Enum.reverse()
-                |> Enum.map(&Access.key(&1, %{})),
+                |> item_path()
+                |> access(),
                 Map.new(attributes)
               )
             else
@@ -67,8 +61,8 @@ defmodule Reed.Handler do
               put_in(
                 state.feed_info,
                 current_path
-                |> Enum.reverse()
-                |> Enum.map(&Access.key(&1, %{})),
+                |> feed_path()
+                |> access(),
                 Map.new(attributes)
               )
             else
@@ -108,10 +102,7 @@ defmodule Reed.Handler do
 
         not is_nil(state.current_item) ->
           local_path =
-            state.current_path
-            |> Enum.split_while(&(&1 != "item"))
-            |> elem(0)
-            |> Enum.reverse()
+            state.current_path |> item_path()
 
           value =
             get_in(state.current_item, local_path) ||
@@ -123,7 +114,7 @@ defmodule Reed.Handler do
                 put_in(
                   state.current_item,
                   local_path
-                  |> Enum.map(&Access.key(&1, %{})),
+                  |> access(),
                   value
                 ),
               current_text: "",
@@ -132,7 +123,7 @@ defmodule Reed.Handler do
 
         true ->
           value =
-            get_in(state.feed_info, state.current_path |> Enum.reverse()) ||
+            get_in(state.feed_info, state.current_path |> feed_path()) ||
               String.trim(state.current_text)
 
           %{
@@ -140,7 +131,7 @@ defmodule Reed.Handler do
             | feed_info:
                 put_in(
                   state.feed_info,
-                  state.current_path |> Enum.reverse() |> Enum.map(&Access.key(&1, %{})),
+                  state.current_path |> feed_path() |> access(),
                   value
                 ),
               current_text: "",
@@ -148,15 +139,26 @@ defmodule Reed.Handler do
           }
       end
 
-    if state.halted do
-      {:stop, new_state}
-    else
-      {:ok, new_state}
-    end
+    if state.halted, do: {:stop, new_state}, else: {:ok, new_state}
   end
 
   @impl Saxy.Handler
   def handle_event(:characters, chars, state) do
     {:ok, %{state | current_text: state.current_text <> chars}}
+  end
+
+  defp item_path(path) do
+    path
+    |> Enum.split_while(&(&1 != "item"))
+    |> elem(0)
+    |> Enum.reverse()
+  end
+
+  defp feed_path(path) do
+    path |> Enum.reverse()
+  end
+
+  defp access(path) do
+    path |> Enum.map(&Access.key(&1, %{}))
   end
 end
