@@ -46,6 +46,9 @@ defmodule Reed.Transformers do
     %{state | private: Map.update(private, :items, [item], &[item | &1])}
   end
 
+  @doc """
+  Halt the RSS streaming after the current item.
+  """
   def halt(%{} = state) do
     %{state | halted: true}
   end
