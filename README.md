@@ -1,8 +1,8 @@
 # Reed
 
-[![Reed version](https://img.shields.io/hexpm/v/Reed.svg)](https://hex.pm/packages/Reed)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/Reed/)
-[![Hex Downloads](https://img.shields.io/hexpm/dt/Reed)](https://hex.pm/packages/Reed)
+[![Reed version](https://img.shields.io/hexpm/v/reed.svg)](https://hex.pm/packages/reed)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/reed/)
+[![Hex Downloads](https://img.shields.io/hexpm/dt/Reed)](https://hex.pm/packages/reed)
 [![Twitter Follow](https://img.shields.io/twitter/follow/ac_alejos?style=social)](https://twitter.com/ac_alejos)
 <!-- BEGIN MODULEDOC -->
 
