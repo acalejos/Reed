@@ -46,7 +46,7 @@ if Code.ensure_loaded?(Req) || Mix.env() == :docs do
         end
 
       {:ok, partial} =
-        Saxy.Partial.new(Reed.Handler, %Reed.Handler.State{
+        Saxy.Partial.new(Reed.Handler, %Reed.State{
           transform: item_handler
         })
 

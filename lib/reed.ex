@@ -7,7 +7,8 @@ defmodule Reed do
     Stream the RSS feed at the specified URL.
 
     ## Options
-    * `:transform` - The transformation pipeline to apply while streaming the RSS feed's items.
+    * `:transform` - The transformation pipeline to apply while streaming the RSS feed's items.  Accepts either a single `transformer`
+    or a list of `transformer`s
      Accepts passes through option to `Req`.
     """
     def get(url, req_opts \\ []) do

@@ -5,9 +5,13 @@ defmodule Reed.Transformers do
   When composing functions from `Reed.Transformers`, be aware that order matters
   and is preserved.
 
-  For example, if you use `transform_item/2` and `collect/2` in your pipeline,
+  For example, if you use `transform/2` and `collect/2` in your pipeline,
   in order for `collect/2` to collect the transformed version of the item it
-  must come after `transform_item/2`.
+  must come after `transform/2`.
+
+  Each transformer function must accept a `state` as the first argument and must
+  return either a new `state` or a return value matching those accepted by
+  `Enum.reduce_while/3`.
   """
 
   @type state :: map()
@@ -22,7 +26,8 @@ defmodule Reed.Transformers do
   (eg. if you call `limit` before `filter` it will count all items, but
   if you call `limit` after `filter` it will only count the filtered items).
   """
-  def filter(%{current_item: item} = state, filter_with \\ fn _item -> true end) do
+  def filter(%{current_item: item} = state, filter_with \\ fn _item -> true end)
+      when is_function(filter_with, 1) do
     {(filter_with.(item) && :cont) || :halt, state}
   end
 
@@ -30,7 +35,7 @@ defmodule Reed.Transformers do
   Transforms the current RSS feed item according to the
   given an arity-1 transformation function.
   """
-  def transform_item(%{current_item: item} = state, transformer)
+  def transform(%{current_item: item} = state, transformer \\ fn item -> item end)
       when is_function(transformer, 1) do
     %{state | current_item: transformer.(item)}
   end
@@ -94,11 +99,11 @@ defmodule Reed.Transformers do
   Reed.get!(url, transform:
     stop_after(1)
     |> collect()
-    |> transform()
+    |> pipeline()
   )
   ```
   """
-  defmacro transform(pipeline) do
+  defmacro pipeline(pipeline) do
     Macro.unpipe(pipeline)
     |> Enum.map(fn {{name, meta, args}, _pos} ->
       ast = {name, meta, [{:state, [], __MODULE__} | args]}

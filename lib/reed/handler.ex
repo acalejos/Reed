@@ -2,16 +2,6 @@ defmodule Reed.Handler do
   @moduledoc false
   @behaviour Saxy.Handler
 
-  defmodule State do
-    defstruct feed_info: %{},
-              current_item: nil,
-              current_text: "",
-              current_path: [],
-              transform: nil,
-              halted: false,
-              private: %{}
-  end
-
   @client_keys [:feed_info, :current_item, :halted, :private]
 
   def client_state(state), do: Map.take(state, @client_keys)
