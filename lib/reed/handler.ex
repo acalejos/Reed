@@ -87,9 +87,18 @@ defmodule Reed.Handler do
       cond do
         not is_nil(state.current_item) and name == "item" ->
           client_state =
-            state
-            |> client_state()
-            |> state.transform.()
+            Enum.reduce_while(state.transform, client_state(state), fn step, acc ->
+              case step.(acc) do
+                {instruction, _new} = res when instruction in [:halt, :cont] ->
+                  res
+
+                new_state when is_map(new_state) ->
+                  {:cont, new_state}
+
+                :halt ->
+                  {:halt, acc}
+              end
+            end)
 
           state = Map.merge(state, client_state)
 

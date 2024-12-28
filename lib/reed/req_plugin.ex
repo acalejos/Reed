@@ -30,7 +30,20 @@ if Code.ensure_loaded?(Req) || Mix.env() == :docs do
     end
 
     def setup_rss_stream(request) do
-      item_handler = Map.get(request.options, :transform, & &1)
+      item_handler = Map.get(request.options, :transform, [& &1])
+
+      item_handler =
+        cond do
+          is_function(item_handler, 1) ->
+            [item_handler]
+
+          is_list(item_handler) && Enum.all?(item_handler, &is_function/1) ->
+            item_handler
+
+          true ->
+            raise ArgumentError,
+                  "`:transform` must either be an arity-1 function or a list of arity-1 functions"
+        end
 
       {:ok, partial} =
         Saxy.Partial.new(Reed.Handler, %Reed.Handler.State{

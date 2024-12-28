@@ -11,7 +11,20 @@ defmodule Reed.Transformers do
   """
 
   @type state :: map()
-  @type transformer :: (state -> state)
+  @type transformer :: (state -> state | {:cont, state} | {:halt, state})
+
+  @doc """
+  Filters out items according to the `filter_with` function. This will skip all remaining
+  steps in the pipeline for the current item. This does NOT halt the reading overall, but
+  rather only the current transformation pipeline for the current item.
+
+  This means that its position in the pipeline has effects on downstream operations,
+  (eg. if you call `limit` before `filter` it will count all items, but
+  if you call `limit` after `filter` it will only count the filtered items).
+  """
+  def filter(%{current_item: item} = state, filter_with \\ fn _item -> true end) do
+    {(filter_with.(item) && :cont) || :halt, state}
+  end
 
   @doc """
   Transforms the current RSS feed item according to the
@@ -33,7 +46,7 @@ defmodule Reed.Transformers do
 
     state = %{state | private: private}
 
-    if Map.fetch!(private, :count) >= count, do: halt(state), else: state
+    if private[:count] >= count, do: halt(state), else: state
   end
 
   @doc """
@@ -86,10 +99,15 @@ defmodule Reed.Transformers do
   ```
   """
   defmacro transform(pipeline) do
-    quote do
-      fn state ->
-        state |> unquote(pipeline)
+    Macro.unpipe(pipeline)
+    |> Enum.map(fn {{name, meta, args}, _pos} ->
+      ast = {name, meta, [{:state, [], __MODULE__} | args]}
+
+      quote do
+        fn state ->
+          unquote(ast)
+        end
       end
-    end
+    end)
   end
 end
