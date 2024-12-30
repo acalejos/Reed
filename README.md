@@ -2,7 +2,7 @@
 
 [![Reed version](https://img.shields.io/hexpm/v/reed.svg)](https://hex.pm/packages/reed)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/reed/)
-[![Hex Downloads](https://img.shields.io/hexpm/dt/Reed)](https://hex.pm/packages/reed)
+[![Hex Downloads](https://img.shields.io/hexpm/dt/reed)](https://hex.pm/packages/reed)
 [![Twitter Follow](https://img.shields.io/twitter/follow/ac_alejos?style=social)](https://twitter.com/ac_alejos)
 <!-- BEGIN MODULEDOC -->
 
@@ -13,7 +13,7 @@ Streaming RSS parser with a built-in `Req` plugin for network-enabled chunked st
 ```elixir
 def deps do
   [
-    {:reed, "~> 0.1.0"}
+    {:reed, "~> 0.2.0"}
   ]
 end
 ```
@@ -68,14 +68,14 @@ Reed.get!(rss_url, transform: transform(halt()))
 
 ```elixir
 import Reed.Transformers
-Reed.get!(rss_url, transform: transform(collect()))
+Reed.get!(rss_url, transform: pipeline(collect()))
 ```
 
 ### Get the first 5 items in a list
 
 ```elixir
 import Reed.Transformers
-Reed.get!(rss_url, transform: collect() |> limit(5) |> transform())
+Reed.get!(rss_url, transform: collect() |> limit(5) |> pipeline())
 ```
 
 ### Get all `itunes:` namespaced elements from the first 2 items as a list
@@ -85,7 +85,7 @@ import Reed.Transformers
 
 Reed.get!(rss_url,
   transform:
-    transform_item(
+    transform(
       &Map.filter(&1, fn
         {<<"itunes:", _rest::binary>>, _v} -> true
         _ -> false
@@ -93,7 +93,22 @@ Reed.get!(rss_url,
     )
     |> collect()
     |> limit(2)
-    |> transform()
+    |> pipeline()
+)
+```
+
+#### Get the description, title, and publication date of the first episode that starts with a `10`
+
+```elixir
+import Reed.Transformers
+
+Reed.get!(url,
+  transform:
+    filter(&match?(%{"title" => <<"#10", _rest::binary>>}, &1))
+    |> transform(&Map.take(&1, ["description", "title", "pubDate"]))
+    |> limit(1)
+    |> collect()
+    |> pipeline()
 )
 ```
 <!-- END MODULEDOC -->

@@ -14,8 +14,8 @@ defmodule Reed.Transformers do
   `Enum.reduce_while/3`.
   """
 
-  @type state :: map()
-  @type transformer :: (state -> state | {:cont, state} | {:halt, state})
+  @type transformer :: (Reed.State.t() ->
+                          Reed.State.t() | {:cont, Reed.State.t()} | {:halt, Reed.State.t()})
 
   @doc """
   Filters out items according to the `filter_with` function. This will skip all remaining
@@ -86,13 +86,20 @@ defmodule Reed.Transformers do
   The following two are equivalent:
 
   ```elixir
+  Reed.get!(url, transform: [
+      fn state -> stop_after(state, 1),
+      fn state -> collect(state)
+    ]
+  )
+  ```
+
+  ```elixir
   Reed.get!(url, transform:
     fn state ->
-      state
-      |> stop_after(1)
-      |> collect()
-    end
-  )
+    state
+    |> stop_after(1)
+    |> collect()
+  end)
   ```
 
   ```elixir

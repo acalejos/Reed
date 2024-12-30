@@ -14,8 +14,7 @@ if Code.ensure_loaded?(Req) || Mix.env() == :docs do
     You can get the result using `Req.Response.get_private(response, :rss)`.
 
     ## Options
-    * `:transform` - The transformation function / pipeline to apply to each item in the RSS feed. Check
-                      the documentation for `Reed` for more information.
+    * `:transform` - The transformation function / pipeline to apply to each item in the RSS feed. Check the documentation for `Reed` for more information.
     """
     alias Req.{Request, Response}
 
